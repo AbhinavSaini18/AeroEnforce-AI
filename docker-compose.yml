@@ -12,5 +12,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # Add this new service block here:
+  db_viewer:
+    image: adminer:latest
+    container_name: aeroenforce_viewer
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
