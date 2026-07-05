@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Dark Mode variables (default) */
+  --bg-primary: #07070d;
+  --bg-secondary: #0d0d16;
+  --card-bg: rgba(18, 18, 30, 0.65);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-border-hover: rgba(255, 255, 255, 0.16);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --primary: #3b82f6;
+  --primary-glow: rgba(59, 130, 246, 0.3);
+  
+  /* AQI Color Scale */
+  --aqi-good: #10b981;
+  --aqi-moderate: #f59e0b;
+  --aqi-sensitive: #f97316;
+  --aqi-poor: #ef4444;
+  --aqi-very-unhealthy: #a855f7;
+  --aqi-hazardous: #7f1d1d;
+  
+  /* Glow filters */
+  --glow-good: 0 0 15px rgba(16, 185, 129, 0.35);
+  --glow-moderate: 0 0 15px rgba(245, 158, 11, 0.35);
+  --glow-sensitive: 0 0 15px rgba(249, 115, 22, 0.35);
+  --glow-poor: 0 0 15px rgba(239, 68, 68, 0.35);
+  --glow-very-unhealthy: 0 0 15px rgba(168, 85, 247, 0.35);
+  --glow-hazardous: 0 0 15px rgba(127, 29, 29, 0.35);
+
+  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  /* Custom theme vars for map and shadows */
+  --map-district-bg: #16162a;
+  --map-district-hover: #22223b;
+  --map-district-stroke: rgba(255, 255, 255, 0.05);
+  --map-district-stroke-hover: rgba(255, 255, 255, 0.2);
+  
+  --land-use-green: #072e20;
+  --land-use-gold: #2d2812;
+  --land-use-mixed: #1c1b35;
+  --land-use-industrial: #221a1d;
+  
+  --map-pin-bg: rgba(0, 0, 0, 0.6);
+  --map-pin-text: #ffffff;
+  --map-grid: rgba(255, 255, 255, 0.015);
+  
+  --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  
+  --scrollbar-track: rgba(255, 255, 255, 0.02);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+
+  --map-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
+  --map-bg: #08080f;
+  --search-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Light Mode Overrides */
+body.theme-light {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-border-hover: rgba(15, 23, 42, 0.16);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  --primary-glow: rgba(59, 130, 246, 0.15);
+  
+  --map-district-bg: #e2e8f0;
+  --map-district-hover: #cbd5e1;
+  --map-district-stroke: rgba(15, 23, 42, 0.08);
+  --map-district-stroke-hover: rgba(15, 23, 42, 0.25);
+  
+  --land-use-green: rgba(16, 185, 129, 0.15);
+  --land-use-gold: rgba(245, 158, 11, 0.15);
+  --land-use-mixed: rgba(59, 130, 246, 0.15);
+  --land-use-industrial: rgba(239, 68, 68, 0.15);
+  
+  --map-pin-bg: rgba(255, 255, 255, 0.85);
+  --map-pin-text: #0f172a;
+  --map-grid: rgba(15, 23, 42, 0.035);
+  
+  --glow-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  
+  --scrollbar-track: rgba(15, 23, 42, 0.02);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.12);
+  --scrollbar-thumb-hover: rgba(15, 23, 42, 0.25);
+
+  --map-shadow: inset 0 0 30px rgba(0, 0, 0, 0.08);
+  --map-bg: #f8fafc;
+  --search-bg: rgba(15, 23, 42, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 40%);
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: var(--glow-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: var(--card-border-hover);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}

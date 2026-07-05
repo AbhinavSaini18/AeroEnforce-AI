@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: aeroenforce_db
+    environment:
+      POSTGRES_USER: aero_admin
+      POSTGRES_PASSWORD: aero_secure_password_2026
+      POSTGRES_DB: aeroenforce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
