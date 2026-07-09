@@ -202,6 +202,7 @@ export default function App() {
   const [theme, setTheme] = useState('dark');
   const [activeTab, setActiveTab] = useState('MAP VIEW');
   const [selectedArea, setSelectedArea] = useState(INITIAL_AREAS[0]);
+  const [areasData, setAreasData] = useState(INITIAL_AREAS);
   const [timelineIndex, setTimelineIndex] = useState(1); // 0 = Yesterday, 1 = Today, 2 = Tomorrow
   const [activeLayers, setActiveLayers] = useState({
     landUse: true,
@@ -215,11 +216,79 @@ export default function App() {
   useEffect(() => {
     document.body.className = `theme-${theme}`;
   }, [theme]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadAreas = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/geospatial');
+        if (!response.ok) throw new Error('Unable to load geospatial data');
+        const records = await response.json();
+
+        if (!isActive) return;
+
+        if (Array.isArray(records) && records.length > 0) {
+          const parseMetric = (value) => {
+            const numeric = Number(value);
+            return Number.isFinite(numeric) ? numeric : null;
+          };
+
+          const mapped = INITIAL_AREAS.map((fallback, index) => {
+            const record = records[index] ?? records[0];
+            const aqi = Number(record?.caaqms_aqi ?? fallback.timelineAQI[1]);
+            const safeAqi = Number.isFinite(aqi) ? aqi : fallback.timelineAQI[1];
+            const yesterday = Math.max(30, safeAqi - 10);
+            const tomorrow = Math.min(500, safeAqi + 10);
+
+            return {
+              ...fallback,
+              timelineAQI: [yesterday, safeAqi, tomorrow],
+              aiAnalysis: `Live AQICN/CPCB data indicates a current AQI of ${safeAqi} for ${fallback.shortName}. The latest geospatial feed is now driving the dashboard recommendations.`,
+              primaryPolluter: record?.caaqms_aqi ? `${fallback.primaryPolluter} · AQI ${safeAqi}` : fallback.primaryPolluter,
+              liveMetrics: {
+                source: record?.caaqms_source || 'AQICN / CPCB',
+                aqi: safeAqi,
+                pm2_5: parseMetric(record?.caaqms_pm2_5),
+                pm10: parseMetric(record?.caaqms_pm10),
+                so2: parseMetric(record?.caaqms_so2),
+                co: parseMetric(record?.caaqms_co),
+                no2: parseMetric(record?.caaqms_no2),
+                o3: parseMetric(record?.caaqms_o3)
+              }
+            };
+          });
+
+          setAreasData(mapped);
+          setSelectedArea((prev) => {
+            if (!prev) return mapped[0];
+            const matching = mapped.find((area) => area.id === prev.id);
+            return matching || mapped[0];
+          });
+        } else {
+          setAreasData(INITIAL_AREAS);
+        }
+      } catch (error) {
+        console.warn('Falling back to static demo areas:', error);
+        setAreasData(INITIAL_AREAS);
+      } finally {
+        if (isActive) {
+          setIsLoadingAreas(false);
+        }
+      }
+    };
+
+    loadAreas();
+    return () => {
+      isActive = false;
+    };
+  }, []);
   
   // AI assistant states
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isLoadingAreas, setIsLoadingAreas] = useState(true);
 
   // Enforcement view states
   const [enforcementTasks, setEnforcementTasks] = useState([
@@ -420,11 +489,11 @@ export default function App() {
                 <ShieldAlert size={14} className="text-muted" />
                 Priority Areas
               </h2>
-              <p className="panel-subtitle">Sectors requiring immediate intervention</p>
+              <p className="panel-subtitle">{isLoadingAreas ? 'Loading live CPCB geospatial feeds…' : 'Sectors requiring immediate intervention'}</p>
             </div>
             
             <div className="panel-scroll-container">
-              {INITIAL_AREAS.map(area => {
+              {areasData.map(area => {
                 const aqi = area.timelineAQI[timelineIndex];
                 const color = getAQIColor(aqi);
                 const isSelected = selectedArea.id === area.id;
@@ -511,7 +580,7 @@ export default function App() {
               onSelectArea={setSelectedArea}
               activeLayers={activeLayers}
               timelineIndex={timelineIndex}
-              areasData={INITIAL_AREAS}
+              areasData={areasData}
             />
 
             {/* Timeframe Slider Panel */}
@@ -576,6 +645,30 @@ export default function App() {
                     <span className="aqi-badge-value">{selectedArea.timelineAQI[timelineIndex]}</span>
                     <span className="aqi-badge-label">{getAQILabel(selectedArea.timelineAQI[timelineIndex])}</span>
                   </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="card-label">Live Pollutant Metrics</span>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>{selectedArea.liveMetrics?.source || 'Static demo'}</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
+                  {[
+                    ['PM2.5', selectedArea.liveMetrics?.pm2_5],
+                    ['PM10', selectedArea.liveMetrics?.pm10],
+                    ['SO₂', selectedArea.liveMetrics?.so2],
+                    ['CO', selectedArea.liveMetrics?.co],
+                    ['NO₂', selectedArea.liveMetrics?.no2],
+                    ['O₃', selectedArea.liveMetrics?.o3]
+                  ].map(([label, value]) => (
+                    <div key={label} style={{ padding: '8px 10px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{label}</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                        {value == null ? '—' : `${Number(value).toFixed(1)} µg/m³`}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

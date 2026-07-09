@@ -1,3 +1,3 @@
-id,name,latitude,longitude,population
-1,region-a,12.5,77.5,120000
-2,region-b,13.0,78.0,95000
+id,name,latitude,longitude,population,caaqms_source,caaqms_aqi,caaqms_aqi_category,caaqms_pm2_5,caaqms_pm10,caaqms_so2,caaqms_co,caaqms_no2,caaqms_o3
+1,region-a,12.5,77.5,120000,CPCB AQI India,23,,9.0,23.0,3.5,7.1,8.7,4.1
+2,region-b,13.0,78.0,95000,CPCB AQI India,23,,9.0,23.0,3.5,7.1,8.7,4.1
